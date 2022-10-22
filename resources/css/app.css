@@ -1,0 +1,5 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#mainSheet {display: flex; flex-direction: column; height: 100vh;}
