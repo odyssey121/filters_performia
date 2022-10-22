@@ -14,13 +14,13 @@ class HousesFilter extends ApiFilter
         'bathrooms' => ['eq'],
         'stores' => ['eq'],
         'garages' => ['eq'],
-        'minPrice' => ['gte', 'gt'],
-        'maxPrice' => ['lte', 'lt']
+        'priceMin' => ['gte', 'gt'],
+        'priceMax' => ['lte', 'lt']
     ];
 
     protected array $columnMap = [
-        'minPrice' => 'price',
-        'maxPrice' => 'price'
+        'priceMin' => 'price',
+        'priceMax' => 'price'
     ];
 
     protected array $operatorMap = [

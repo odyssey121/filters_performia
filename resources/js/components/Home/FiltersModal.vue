@@ -28,7 +28,8 @@
                                                 <label
                                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Bedrooms</label>
                                                 <input type="number"
-                                                       v-model="bedrooms"
+                                                       v-model="filters.bedrooms.val"
+                                                       min="1"
                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                                        placeholder="">
                                             </div>
@@ -36,7 +37,8 @@
                                                 <label
                                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Bathrooms</label>
                                                 <input type="number"
-                                                       v-model="bathrooms"
+                                                       min="1"
+                                                       v-model="filters.bathrooms.val"
                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                                        placeholder="">
                                             </div>
@@ -44,7 +46,8 @@
                                                 <label
                                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Storeys</label>
                                                 <input type="number"
-                                                       v-model="storeys"
+                                                       min="1"
+                                                       v-model="filters.stores.val"
                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                                        placeholder="">
                                             </div>
@@ -52,7 +55,8 @@
                                                 <label
                                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Garages</label>
                                                 <input type="number"
-                                                       v-model="garages"
+                                                       min="1"
+                                                       v-model="filters.garages.val"
                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                                        placeholder="">
                                             </div>
@@ -61,7 +65,8 @@
                                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Price
                                                     min</label>
                                                 <input type="number"
-                                                       v-model="price_min"
+                                                       min="1"
+                                                       v-model="filters.priceMin.val"
                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                                        placeholder="">
                                             </div>
@@ -70,7 +75,8 @@
                                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Price
                                                     max</label>
                                                 <input type="number"
-                                                       v-model="price_max"
+                                                       min="1"
+                                                       v-model="filters.priceMax.val"
                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                                        placeholder="">
                                             </div>
@@ -81,11 +87,15 @@
                             <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                                 <button type="button"
                                         class="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
-                                        @click="$emit('handleFilters')">Apply
+                                        @click="applyFilters">Apply
                                 </button>
                                 <button type="button"
                                         class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                                         @click="$emit('handleFilters')" ref="cancelButtonRef">Cancel
+                                </button>
+                                <button type="button"
+                                        class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                        @click="resetFiltersApplied" ref="cancelButtonRef">Reset
                                 </button>
                             </div>
                         </dialog-panel>
@@ -104,6 +114,8 @@ import {
     DialogPanel,
     DialogTitle,
 } from '@headlessui/vue'
+import {getQuerySearchParam, removeUrlParameter, updateQueryStringParameter} from "../../util";
+import {mapActions} from "vuex";
 
 export default {
     name: "FiltersModal",
@@ -115,19 +127,68 @@ export default {
         DialogPanel,
         DialogTitle
     },
+    mounted() {
+        this.emitter.on("resetFiltersAppliedEmmit", this.resetFiltersApplied);
+        this.setFiltersApplied(Object.values(this.filters).filter(({val}) => val).length);
+    },
     data() {
         return {
-            bedrooms: null,
-            bathrooms: null,
-            storeys: null,
-            garages: null,
-            price_min: null,
-            price_max: null
+            filters: {
+                bedrooms: {val: (getQuerySearchParam(window.location.search)['bedrooms[eq]'] || null), operator: 'eq'},
+                bathrooms: {val: (getQuerySearchParam(window.location.search)['bathrooms[eq]'] || null), operator: 'eq'},
+                stores: {val: (getQuerySearchParam(window.location.search)['stores[eq]'] || null), operator: 'eq'},
+                garages: {val: (getQuerySearchParam(window.location.search)['garages[eq]'] || null), operator: 'eq'},
+                priceMin: {val: (getQuerySearchParam(window.location.search)['priceMin[eq]'] || null), operator: 'gte'},
+                priceMax: {val: (getQuerySearchParam(window.location.search)['priceMax[eq]'] || null), operator: 'lte'}
+            },
         }
     },
     props: {
         open: {type: Boolean, default: true, required: false}
     },
-    methods: {}
+    methods: {
+        ...mapActions('home', ['setFiltersApplied']),
+        resetFilters() {
+            Object.keys(this.filters).forEach(key => this.filters[key].val = null)
+            this.setFiltersApplied(0);
+        },
+        getFiltersData() {
+            return Object.keys(this.filters).map(key => ({name: key, ...this.filters[key]}))
+        },
+        resetFiltersApplied() {
+            const deletedQuery = this.getFiltersData().reduce((delParamQuery, r) => {
+                const paramName = `${r.name}[${r.operator}]`;
+                return removeUrlParameter(delParamQuery, paramName, false)
+            }, window.location.href);
+
+            window.history.pushState('', '', deletedQuery);
+
+            this.resetFilters();
+            this.emitter.emit("fetchHousesEmmit");
+
+        },
+        applyFilters() {
+            const filtersDataApplied = [];
+            const deletedQuery = this.getFiltersData().reduce((delParamQuery, r) => {
+                const paramName = `${r.name}[${r.operator}]`;
+                if (r.val) {
+                    filtersDataApplied.push({paramName, ...r});
+                    return delParamQuery
+                }
+                return removeUrlParameter(delParamQuery, paramName, false)
+            }, window.location.href);
+            const query = filtersDataApplied.reduce((accQuery, {
+                paramName,
+                val
+            }) => updateQueryStringParameter(accQuery, paramName, val), deletedQuery);
+            const resultQuery = removeUrlParameter(query, 'page', query);
+            window.history.pushState('', '', resultQuery);
+
+            this.setFiltersApplied(filtersDataApplied.length);
+            this.emitter.emit("fetchHousesEmmit");
+            this.$emit('handleFilters');
+
+        }
+    }
 }
 </script>

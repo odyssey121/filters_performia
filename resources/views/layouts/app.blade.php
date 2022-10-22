@@ -10,4 +10,10 @@
 <body>
     <div id="app"></div>
 </body>
+<script>
+    window.SERVER = {
+        url: "{{ config('app.url') }}",
+        api_url: "{{ config('app.api_url') }}",
+    }
+</script>
 </html>
