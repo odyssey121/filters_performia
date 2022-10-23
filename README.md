@@ -34,8 +34,12 @@ HTML).
 
     $ git clone https://github.com/odyssey121/filters_performia
     $ cd filters_performia
-    $ mv .env.example .env
+    $ mv .env.example .env -v
     $ composer install
+    $ ./vendor/bin/sail up -d
+    $ ./vendor/bin/sail php artisan migrate:fresh --seed
+    $ ./vendor/bin/sail npm install
+    $ ./vendor/bin/sail npm run dev
 
 - Laravel/vue: http://localhost:80
 
