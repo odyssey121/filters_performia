@@ -1,5 +1,4 @@
 export function removeUrlParameter(url, parameter, encodedUri = true) {
-    console.log('url, parameter',parameter)
     //prefer to use l.search if you have a location/link object
     var urlparts = url.split('?');
     if (urlparts.length >= 2) {
@@ -42,6 +41,5 @@ export function getQuerySearchParam(query) {
 }
 
 export function escapeRegExp(text) {
-    console.log('text', text)
     return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 }
